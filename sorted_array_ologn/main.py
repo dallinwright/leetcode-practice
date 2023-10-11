@@ -3,9 +3,17 @@ from statistics import median
 from typing import List
 
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 def find_median_sorted_arrays(nums1: List[int], nums2: List[int]) -> float:
+    """
+    This is actually very difficult as you cannot iterate the arrays
+    You cant even introspect them but operate on general information
+    To achieve O(log(m+n)) we need to use binary operations basically.
+
+    :parameter nums1: List[int]
+    :parameter nums2: List[int]
+
+    :return: float (the median of the two sorted but unmerged arrays)
+    """
     sorted_array = []
     # O(log(m+n)) means we have to cut in half repeatedly to get the data we want
     # Start by calculating the kth element
