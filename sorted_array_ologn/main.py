@@ -1,11 +1,12 @@
 # This is a sample Python script.
+import math
 from statistics import median
 from typing import List
 
 
-def find_median_sorted_arrays(nums1: List[int], nums2: List[int]) -> float:
+def find_median_sorted_lists(nums1: List[int], nums2: List[int]) -> float:
     """
-    This is actually very difficult as you cannot iterate the arrays
+    This is actually very difficult as you cannot iterate the lists
     You cant even introspect them but operate on general information
     To achieve O(log(m+n)) we need to use binary operations basically.
 
@@ -16,41 +17,56 @@ def find_median_sorted_arrays(nums1: List[int], nums2: List[int]) -> float:
     :parameter nums1: List[int]
     :parameter nums2: List[int]
 
-    :return: float (the median of the two sorted but unmerged arrays)
+    :return: Float (the median of the two sorted but unmerged lists)
     """
     # O(log(m+n)) means we have to cut in half repeatedly to get the data we want. Think binary search like a tree.
-    # Start by calculating the kth element, in our case the median/middle element
-    # k = (m+n)/2
-    # if k is odd, then we need to find the kth element
-    # if k is even, then we need to find the kth and k+1st element and take the average
-    aggregate_middle_index = (len(nums1) + len(nums2)) / 2
 
-    # We have two arrays, and we want to find the median they are both sorted but unmerged which is the problem.
+    # We have two lists, and we want to find the median they are both sorted but unmerged which is the problem.
     # Merging is time complexity O(M + N) so we want to avoid that for the exercise.
-    # According to algorithm wiki page and docs, we need to use the smaller array as the base.
-    first_length = len(nums1)
-    second_length = len(nums2)
+    # According to algorithm wiki page and docs, we need to use the smaller list as the base.
 
-    shorter_array = nums1 if first_length < second_length else nums2
-    longer_array = nums1 if first_length > second_length else nums2
+    # Assign the shorter and longer lists.
+    shorter_list, longer_list = (nums1, nums2) if len(nums1) <= len(nums2) else (nums2, nums1)
+    shorter_length = len(shorter_list)
+    longer_length = len(longer_list)
+    midpoint: int = (shorter_length + longer_length + 1) // 2
 
-    start_index = 0
-    end_index = len(longer_array)
+    # When we start traversing to find the correct partition, we begin at index 0 and will iterate up to the
+    # length of the list. This is because we won't need to traverse the whole longer list, just the median.
+    # If the midpoint is odd, we floor it to make sure we grab all the indexes we need to traverse.
+    # Shorter needs to error on the left side of the sorted list and work in
+    shorter_start_index = 0
+    shorter_end_index = len(shorter_list)
 
-    # Tricky and not straightforward. We need to find in the longer array, the point to partition it so that the left
-    # side of the partition is less than the right side of the partition calculates the index where the median would be
-    # if you combined the two arrays into a single sorted array
-    # (if the combined size is odd, this is the exact median index).
-    # Notice the double slash divide by 2. This floors it and forces an int conversion if it is a float.
-    combined_median_index: int = (first_length + second_length + 1) // 2
+    while shorter_start_index <= shorter_end_index:
+        shorter_midpoint = (shorter_start_index + shorter_end_index) // 2
+        longer_midpoint = midpoint - shorter_midpoint
 
-    # Subtracting mid from this index gives you the corresponding index in the other array (longer array)
-    # that would be part of the median partition.
-    longer_array_partition_index = combined_median_index - aggregate_middle_index
+        if shorter_midpoint < shorter_length and nums2[longer_midpoint - 1] > nums1[shorter_midpoint]:
+            shorter_start_index = shorter_midpoint + 1
+        elif shorter_midpoint > 0 and nums1[shorter_midpoint - 1] > nums2[longer_midpoint]:
+            shorter_end_index = shorter_midpoint - 1
+        else:
+            if shorter_midpoint == 0:
+                max_of_left = nums2[longer_midpoint - 1]
+            elif longer_midpoint == 0:
+                max_of_left = nums1[shorter_midpoint - 1]
+            else:
+                max_of_left = max(nums1[shorter_midpoint - 1], nums2[longer_midpoint - 1])
 
-    smaller_list_partition = shorter_array[longer_array_partition_index]
+            if (shorter_length + longer_length) % 2 == 1:
+                return max_of_left
 
-    return 0.0
+            if shorter_midpoint == shorter_length:
+                min_of_right = nums2[longer_midpoint]
+            elif longer_midpoint == longer_length:
+                min_of_right = nums1[shorter_midpoint]
+            else:
+                min_of_right = min(nums1[shorter_midpoint], nums2[longer_midpoint])
+
+            return (max_of_left + min_of_right) / 2.0
+
+        print("Iterating...")
 
 
 # Press the green button in the gutter to run the script.
