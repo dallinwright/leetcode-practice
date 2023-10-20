@@ -35,6 +35,7 @@ class Trie:
                 node = node.children[character]
             else:
                 return []
+
         self.helper(node, res, word[:-1])  # except the last "ama", node is "z"
 
         return res
