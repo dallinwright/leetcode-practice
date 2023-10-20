@@ -38,6 +38,7 @@ def find_median_sorted_lists(nums1: List[int], nums2: List[int]) -> float:
     shorter_start_index = 0
     shorter_end_index = len(shorter_list)
 
+    # The binary search nightmare begins. Hard to read, but it is O(log(m+n)).
     while shorter_start_index <= shorter_end_index:
         shorter_midpoint = (shorter_start_index + shorter_end_index) // 2
         longer_midpoint = midpoint - shorter_midpoint
