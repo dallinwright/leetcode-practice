@@ -53,7 +53,7 @@ def count_smaller_n_squared(numbers):
     return results
 
 
-def count_smaller_n_log_n(numbers):
+def count_smaller_n_log_n(numbers) -> List[int]:
     """
     O(n * log(n)) solution, better than O(n^2). More complex and is recursive so hard to understand/debug
     This is the container function that calls the internal recursive merge_sort_with_count function.
@@ -118,8 +118,12 @@ def count_smaller_n_log_n(numbers):
 
         return merged_with_counts
 
-    _, result = _merge_sort_with_count(numbers)
-    return result
+    sorted_numbers, counts = _merge_sort_with_count(numbers)
+
+    if len(counts) != len(sorted_numbers):
+        counts.extend(0)
+
+    return counts
 
 
 def test_count_smaller_n_squared():
