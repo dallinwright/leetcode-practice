@@ -22,6 +22,7 @@ Input: nums = [-1,-1]
 Output: [0,0]
 '''
 import copy
+import math
 from typing import List
 
 NUMBERS = [1, 2]
@@ -70,7 +71,8 @@ def count_smaller_n_log_n(numbers) -> List[int]:
             return number_list, [0]
 
         # Chop in half to get O(n * log(n)), and floor to an int to get a usable index. We recursively chop it in half.
-        mid = list_size // 2
+        mid = math.ceil(list_size / 2)
+        # mid = list_size // 2
         left_split = number_list[:mid]
         right_split = number_list[mid:]
 
@@ -82,49 +84,62 @@ def count_smaller_n_log_n(numbers) -> List[int]:
         left_list_size = len(left)
         right_list_size = len(right)
 
-        left_count, right_count = 0, 0
+        left_index, right_index = 0, 0
         merged = []
         # This will fixed-length list where we store counts as we progress through the merge sort
-        # merged_counts = [0] * (left_list_size + right_list_size)
-        merged_counts = []
+        merged_counts = [0] * (left_list_size + right_list_size)
 
-        while left_count < left_list_size and right_count < right_list_size:
+        # This is the merge sort part, we go until one array is emptied
+        while left and right:
             # Select the smallest value from the front of each list (excluding values already in the sorted array)
-            left_element: int = left[left_count]
-            right_element: int = right[right_count]
+            left_element: int = left[left_index]
+            right_element: int = right[right_index]
 
             # Select the minimum of the two values
             if right_element < left_element:
-                # Add the selected value to the sorted array
+                # Since the right element is smaller, we append that element next to the list
                 merged.append(right_element)
+                right.pop(0)
 
-                # This is where we keep count of the smaller elements to the right of numbers[i]
-                # TODO maybe I need to declare an array slice of the same size, and increment the number at index...
-                current_smaller_than_count: int = left_counts[left_count]
-                new_smaller_than_count: int = current_smaller_than_count + 1
+                merged_counts[right_index + 1] = right_counts[right_index] + 1
+                right_counts.pop(0)
 
                 # We need to match the list, if we were [5, 1] and sorted becomes [1, 5] the count should be [0, 1]
-                merged_counts.insert(0, new_smaller_than_count)
-
-                right_count += 1
+                right_index += 1
             else:
                 # Add the selected value to the sorted array
                 merged.append(left_element)
+                left.pop(0)
+                left_counts.pop(0)
 
-                new_smaller_than_count: int = 0
-                merged_counts.insert(0, new_smaller_than_count)
+                left_index += 1
 
-                left_count += 1
+        # When one list becomes empty, copy all values from the remaining array into the sorted array.
+        if left_index == left_list_size:
+            for index in range(right_index, right_list_size):
+                right_element = right[index]
 
-        # When one list becomes empty, copy all values from the remaining array into the sorted array
-        if left_count == left_list_size:
-            merged += right[right_count:]
-            # This is why += is bad, it's not obvious that we're PREPENDING to the list
-            merged_counts = right_counts[right_count:] + merged_counts
+                for sub_index in range(len(merged)):
+                    left_element = merged[sub_index]
+                    if right_element < left_element:
+                        current_count = merged_counts[index]
+                        merged_counts[index] = current_count + 1
+
+            merged += right[right_index:]
         else:
-            merged += left[left_count:]
-            # This is why += is bad, it's not obvious that we're PREPENDING to the list
-            merged_counts = left_counts[left_count:] + merged_counts
+            for remaining_index in range(left_index, left_list_size):
+                left_element = left[remaining_index]
+                merged_length = len(merged)
+
+                smaller_than_count = 0
+
+                for sub_index in range(merged_length):
+                    right_element = merged[sub_index]
+                    if right_element > left_element:
+                        smaller_than_count += 1
+
+                merged_counts[left_index] = smaller_than_count
+                merged.append(left_element)
 
         merged_with_counts = (merged, merged_counts)
 
