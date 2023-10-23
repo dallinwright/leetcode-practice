@@ -87,12 +87,13 @@ def count_smaller_n_log_n(numbers) -> List[int]:
         right_list_size = len(right)
 
         while left_count < left_list_size and right_count < right_list_size:
+            # Select the smallest value from the front of each list (excluding values already in the sorted array)
             left_element: int = left[left_count]
             right_element: int = right[right_count]
 
+            # Select the minimum of the two values
             if right_element < left_element:
-                # Merge sort part of the algorithm
-                merged.append(left_element)
+                # Add the selected value to the sorted array
                 merged.append(right_element)
 
                 # This is where we keep count of the smaller elements to the right of numbers[i]
@@ -100,18 +101,24 @@ def count_smaller_n_log_n(numbers) -> List[int]:
                 new_smaller_than_count: int = current_smaller_than_count + 1
 
                 merged_counts.append(new_smaller_than_count)
-                merged_counts += right_counts[right_count:]
 
-                left_count += 1
+                right_count += 1
             else:
-                merged.append(right_element)
+                # Add the selected value to the sorted array
                 merged.append(left_element)
 
                 new_smaller_than_count: int = 0
                 merged_counts.append(new_smaller_than_count)
-                merged_counts += right_counts[right_count:]
 
-                right_count += 1
+                left_count += 1
+
+        # When one list becomes empty, copy all values from the remaining array into the sorted array
+        if left_count == left_list_size:
+            merged += right[right_count:]
+            merged_counts += right_counts[right_count:]
+        else:
+            merged += left[left_count:]
+            merged_counts += left_counts[left_count:]
 
         merged_with_counts = (merged, merged_counts)
 
@@ -140,6 +147,24 @@ def test_small_list_already_ordered():
 def test_small_list_not_ordered():
     numbers = [2, 1]
     expected = [1, 0]
+
+    results = count_smaller_n_log_n(numbers)
+
+    assert results == expected
+
+
+def test_medium_list_already_ordered():
+    numbers = [1, 2, 3, 4, 5]
+    expected = [0, 0, 0, 0, 0]
+
+    results = count_smaller_n_log_n(numbers)
+
+    assert results == expected
+
+
+def test_medium_list_not_ordered():
+    numbers = [2, 5, 1, 6, 4, 3]
+    expected = [1, 3, 0, 2, 1, 0]
 
     results = count_smaller_n_log_n(numbers)
 
