@@ -55,7 +55,7 @@ def count_smaller_n_squared(numbers):
 
 def count_smaller_n_log_n(numbers) -> List[int]:
     """
-    O(n * log(n)) solution, better than O(n^2). More complex and is recursive so hard to understand/debug
+    O(n * log(n)) solution, better than O(n^2). More complex and is recursive, so hard to understand/debug
     This is the container function that calls the internal recursive merge_sort_with_count function.
 
     :param numbers: Array of numbers
@@ -65,16 +65,16 @@ def count_smaller_n_log_n(numbers) -> List[int]:
     def _merge_sort_with_count(number_list: List[int]) -> (List[int], List[int]):
         list_size = len(number_list)
 
-        # Return 0 for empty list
+        # Return 0 for an empty or 1 length list
         if list_size <= 1:
             return number_list, [0]
 
-        # Chop in half to get O(n * log(n)), and floor to an int to get a usable index. We recursive chop it in half.
+        # Chop in half to get O(n * log(n)), and floor to an int to get a usable index. We recursively chop it in half.
         mid = list_size // 2
         left_split = number_list[:mid]
         right_split = number_list[mid:]
 
-        # This at the deepest call in the recursive call stack, will return a 2 element list, and a count of 0 if
+        # This at the deepest call in the recursive call stack will return a 2-element list, and a count of 0 if
         # the list has 2 equal numbers, otherwise a count of 1. The 2 elements will be sorted via merge sort.
         left, left_counts = _merge_sort_with_count(left_split)
         right, right_counts = _merge_sort_with_count(right_split)
@@ -87,41 +87,37 @@ def count_smaller_n_log_n(numbers) -> List[int]:
         right_list_size = len(right)
 
         while left_count < left_list_size and right_count < right_list_size:
-
-            # Bug happens on second iteration. We need the count array to be the same length as the merged array.
             left_element: int = left[left_count]
             right_element: int = right[right_count]
 
             if right_element < left_element:
+                # Merge sort part of the algorithm
                 merged.append(left_element)
+                merged.append(right_element)
 
                 # This is where we keep count of the smaller elements to the right of numbers[i]
                 current_smaller_than_count: int = left_counts[left_count]
                 new_smaller_than_count: int = current_smaller_than_count + 1
 
                 merged_counts.append(new_smaller_than_count)
+                merged_counts += right_counts[right_count:]
 
                 left_count += 1
             else:
                 merged.append(right_element)
+                merged.append(left_element)
 
                 new_smaller_than_count: int = 0
-
                 merged_counts.append(new_smaller_than_count)
+                merged_counts += right_counts[right_count:]
 
                 right_count += 1
-
-        merged_counts += right_counts[right_count:]
-        merged += left[left_count:]
 
         merged_with_counts = (merged, merged_counts)
 
         return merged_with_counts
 
     sorted_numbers, counts = _merge_sort_with_count(numbers)
-
-    if len(counts) != len(sorted_numbers):
-        counts.extend(0)
 
     return counts
 
