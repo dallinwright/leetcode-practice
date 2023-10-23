@@ -79,12 +79,14 @@ def count_smaller_n_log_n(numbers) -> List[int]:
         left, left_counts = _merge_sort_with_count(left_split)
         right, right_counts = _merge_sort_with_count(right_split)
 
-        left_count, right_count = 0, 0
-        merged = []
-        merged_counts = []
-
         left_list_size = len(left)
         right_list_size = len(right)
+
+        left_count, right_count = 0, 0
+        merged = []
+        # This will fixed-length list where we store counts as we progress through the merge sort
+        # merged_counts = [0] * (left_list_size + right_list_size)
+        merged_counts = []
 
         while left_count < left_list_size and right_count < right_list_size:
             # Select the smallest value from the front of each list (excluding values already in the sorted array)
@@ -97,10 +99,12 @@ def count_smaller_n_log_n(numbers) -> List[int]:
                 merged.append(right_element)
 
                 # This is where we keep count of the smaller elements to the right of numbers[i]
+                # TODO maybe I need to declare an array slice of the same size, and increment the number at index...
                 current_smaller_than_count: int = left_counts[left_count]
                 new_smaller_than_count: int = current_smaller_than_count + 1
 
-                merged_counts.append(new_smaller_than_count)
+                # We need to match the list, if we were [5, 1] and sorted becomes [1, 5] the count should be [0, 1]
+                merged_counts.insert(0, new_smaller_than_count)
 
                 right_count += 1
             else:
@@ -108,17 +112,19 @@ def count_smaller_n_log_n(numbers) -> List[int]:
                 merged.append(left_element)
 
                 new_smaller_than_count: int = 0
-                merged_counts.append(new_smaller_than_count)
+                merged_counts.insert(0, new_smaller_than_count)
 
                 left_count += 1
 
         # When one list becomes empty, copy all values from the remaining array into the sorted array
         if left_count == left_list_size:
             merged += right[right_count:]
-            merged_counts += right_counts[right_count:]
+            # This is why += is bad, it's not obvious that we're PREPENDING to the list
+            merged_counts = right_counts[right_count:] + merged_counts
         else:
             merged += left[left_count:]
-            merged_counts += left_counts[left_count:]
+            # This is why += is bad, it's not obvious that we're PREPENDING to the list
+            merged_counts = left_counts[left_count:] + merged_counts
 
         merged_with_counts = (merged, merged_counts)
 
