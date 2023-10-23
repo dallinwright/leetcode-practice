@@ -87,6 +87,8 @@ def count_smaller_n_log_n(numbers):
         right_list_size = len(right)
 
         while left_count < left_list_size and right_count < right_list_size:
+
+            # Bug happens on second iteration. We need the count array to be the same length as the merged array.
             left_element: int = left[left_count]
             right_element: int = right[right_count]
 
@@ -103,10 +105,15 @@ def count_smaller_n_log_n(numbers):
             else:
                 merged.append(right_element)
 
+                new_smaller_than_count: int = 0
+
+                merged_counts.append(new_smaller_than_count)
+
                 right_count += 1
 
         merged_counts += right_counts[right_count:]
         merged += left[left_count:]
+
         merged_with_counts = (merged, merged_counts)
 
         return merged_with_counts
