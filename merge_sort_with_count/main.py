@@ -81,13 +81,10 @@ def count_smaller_n_log_n(numbers) -> List[int]:
         left, left_counts = _merge_sort_with_count(left_split)
         right, right_counts = _merge_sort_with_count(right_split)
 
-        left_list_size = len(left)
-        right_list_size = len(right)
-
         left_index, right_index = 0, 0
         merged = []
         # This will fixed-length list where we store counts as we progress through the merge sort
-        merged_counts = [0] * (left_list_size + right_list_size)
+        merged_counts = []
 
         # This is the merge sort part, we go until one array is emptied
         while left and right:
@@ -99,9 +96,11 @@ def count_smaller_n_log_n(numbers) -> List[int]:
             if right_element < left_element:
                 # Since the right element is smaller, we append that element next to the list
                 merged.append(right_element)
-                right.pop(0)
 
-                merged_counts[right_index + 1] = right_counts[right_index] + 1
+                element_count = right_counts[right_index] + 1
+                merged_counts.append(element_count)
+
+                right.pop(0)
                 right_counts.pop(0)
 
                 # We need to match the list, if we were [5, 1] and sorted becomes [1, 5] the count should be [0, 1]
@@ -109,46 +108,21 @@ def count_smaller_n_log_n(numbers) -> List[int]:
             else:
                 # Add the selected value to the sorted array
                 merged.append(left_element)
+
+                element_count = left_counts[left_index] + 1
+                merged_counts.append(element_count)
+
                 left.pop(0)
                 left_counts.pop(0)
 
                 left_index += 1
 
-        merged_length = len(merged)
-
-        # TODO so this still throws a new bug, we are now double counting...
-        if left_index == left_list_size:
-            for remaining_index in range(right_index, right_list_size):
-                remaining_element = right[right_index]
-
-                merged_index = remaining_index + merged_length
-                current_count = merged_counts[merged_index]
-
-                for sub_index in range(merged_length):
-                    picked_element = merged[sub_index]
-
-                    if picked_element > remaining_element:
-                        current_count += 1
-                        merged_counts[merged_index] = current_count
-
-                merged.append(remaining_element)
-
-            merged += right[right_index:]
-        else:
-            for remaining_index in range(left_index, left_list_size):
-                remaining_element = left[remaining_index]
-
-                merged_index = remaining_index + merged_length
-                current_count = merged_counts[merged_index]
-
-                for sub_index in range(merged_length):
-                    picked_element = merged[sub_index]
-
-                    if picked_element > remaining_element:
-                        current_count += 1
-                        merged_counts[merged_index] = current_count
-
-                merged.append(remaining_element)
+        if left_index < len(left):
+            merged.extend(left[left_index:])
+            merged_counts.extend(left_counts[left_index:])
+        elif right_index < len(right):
+            merged.extend(right[right_index:])
+            merged_counts.extend(right_counts[right_index:])
 
         merged_with_counts = (merged, merged_counts)
 
