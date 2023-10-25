@@ -1,37 +1,28 @@
-'''
-Given an integer array nums, return an integer array counts where counts[i] is the number of smaller elements to the right of nums[i].
-de
-
+"""
+Given an integer array nums, return an integer array counts where counts[i] is the number of smaller elements to
+the right of nums[i].
 
 Example 1:
 
 Input: nums = [5,2,6,1]
 Output: [2,1,1,0]
 Explanation:
-To the right of 5 there are 2 smaller elements (2 and 1).
-To the right of 2 there is only 1 smaller element (1).
-To the right of 6 there is 1 smaller element (1).
-To the right of 1 there is 0 smaller element.
-Example 2:
-
-Input: nums = [-1]
-Output: [0]
-Example 3:
-
-Input: nums = [-1,-1]
-Output: [0,0]
-'''
-import copy
+To the right of 5, there are two smaller elements (2 and 1).
+To the right of 2, there is only one smaller element (1).
+To the right of 6, there is one smaller element (1).
+To the right of 1, there are zero smaller elements.
+"""
 import math
 from typing import List
-
-NUMBERS = [1, 2]
-EXPECTED = [0, 0]
 
 
 def count_smaller_n_squared(numbers):
     """
-    O(n^2) solution, not ideal but the most simple.
+    O(n^2) solution, not ideal but the most simple. This is the first stop people will do when given this problem.
+    It fulfills the requirement with the least work, the least expertise, and least familiarity required
+    with the problem. It is also the slowest, hence why it is a good interview question to see if the candidate
+    can even code the solution, then how they attempt to improve it if they can. It is very deceptive, because it is
+    easy to code, but hard to improve.
 
     :param numbers: Array of numbers
     :return: Array of counts, where a +1 is the number of smaller elements to the right of nums[i]
@@ -57,7 +48,10 @@ def count_smaller_n_squared(numbers):
 def count_smaller_n_log_n(numbers) -> List[int]:
     """
     O(n * log(n)) solution, better than O(n^2). More complex and is recursive, so hard to understand/debug
-    This is the container function that calls the internal recursive merge_sort_with_count function.
+    This is the container function that calls the internal recursive merge_sort_with_count function. This is the
+    fastest you are realistically going to get in python, and one of the better solutions for this problem.
+    You can improve it even further by multithreading it, but python does not handle that well with the global
+    interpreter lock and all that jazz, so I am not going to bother.
 
     :param numbers: Array of numbers
     :return: Array of counts, where a +1 is the number of smaller elements to the right of nums[i]
@@ -160,9 +154,12 @@ def count_smaller_n_log_n(numbers) -> List[int]:
 
 
 def test_count_smaller_n_squared():
-    results = count_smaller_n_squared(NUMBERS)
+    numbers = [1, 2]
+    expected = [0, 0]
 
-    assert results == EXPECTED
+    results = count_smaller_n_squared(numbers)
+
+    assert results == expected
 
 
 def test_small_list_already_ordered():
