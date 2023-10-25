@@ -81,10 +81,19 @@ def count_smaller_n_log_n(numbers) -> List[int]:
         left, left_counts = _merge_sort_with_count(left_split)
         right, right_counts = _merge_sort_with_count(right_split)
 
-        left_index, right_index = 0, 0
+        left_index = 0
+        right_index = 0
         merged = []
-        # This will fixed-length list where we store counts as we progress through the merge sort
         merged_counts = []
+
+        left_items = dict()
+        right_items = dict()
+
+        for item in left:
+            left_items.setdefault(item, {'count': 0, 'evaluated': False})
+
+        for item in right:
+            right_items.setdefault(item, {'count': 0, 'evaluated': False})
 
         # This is the merge sort part, we go until one array is emptied
         while left and right:
@@ -121,6 +130,10 @@ def count_smaller_n_log_n(numbers) -> List[int]:
 
                 left_index += 1
 
+
+        # TODO this only works if you just extend. We need to evaluate the untouched numbers in the remaining list
+        #  Essentially we increment and need to set a value as evaluated = true. So we only check the remaining
+        #  unevaluated numbers in the remaining list
         if left_index < len(left):
             merged.extend(left[left_index:])
             merged_counts.extend(left_counts[left_index:])
