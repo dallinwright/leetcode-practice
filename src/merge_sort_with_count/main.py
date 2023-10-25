@@ -59,88 +59,28 @@ def count_smaller_n_log_n(numbers) -> List[int]:
     :return: Array of counts, where a +1 is the number of smaller elements to the right of nums[i]
     """
 
-    def _merge_sort_with_count(number_list: List[int]) -> (List[int], List[int]):
-        list_size = len(number_list)
+    def count_smaller(nums):
+        if not nums:
+            return []
 
-        # Return 0 for an empty or 1 length list
-        if list_size <= 1:
-            return number_list, [0]
+        def sort(enum):
+            half = len(enum) // 2
 
-        # Chop in half to get O(n * log(n)), and floor to an int to get a usable index. We recursively chop it in half.
-        mid = math.ceil(list_size / 2)
-        # mid = list_size // 2
-        left_split = number_list[:mid]
-        right_split = number_list[mid:]
+            if half:
+                left, right = sort(enum[:half]), sort(enum[half:])
+                for i in range(len(enum) - 1, -1, -1):
+                    if not right or left and left[-1][1] > right[-1][1]:
+                        smaller[left[-1][0]] += len(right)
+                        enum[i] = left.pop()
+                    else:
+                        enum[i] = right.pop()
+            return enum
 
-        # This at the deepest call in the recursive call stack will return a 2-element list, and a count of 0 if
-        # the list has 2 equal numbers, otherwise a count of 1. The 2 elements will be sorted via merge sort.
-        left, left_counts = _merge_sort_with_count(left_split)
-        right, right_counts = _merge_sort_with_count(right_split)
+        smaller = [0] * len(nums)
+        sort(list(enumerate(nums)))
+        return smaller
 
-        left_index = 0
-        right_index = 0
-        left_size = len(left)
-        right_size = len(right)
-        merged = []
-        merged_counts = [0] * (left_size + right_size)
-
-        # Very strange, very strange indeed.
-        # We must compare each element in the left to each element in the right, this breaks from the regular merge-sort
-        # algo.
-        while left_index < left_size and right_index < right_size:
-            left_element: int = left[left_index]
-            right_element: int = right[right_index]
-
-            if right_element < left_element:
-                merged.append(right_element)
-
-                right_index += 1
-            else:
-                merged.append(left_element)
-
-                left_index += 1
-
-        if left_index < left_size:
-            merged = merged + left[left_index:]
-        elif right_index < right_size:
-            merged = merged + right[right_index:]
-
-        # We had to inspect and compare both arrays which are sorted and essentially zipper them.
-        # That means we inspected and compared every element already.
-        # We MUST compare every left element to every right
-        # until we hit the end OR we hit a right element > than a left element.
-        index = 0
-
-        # TODO shortcircuit delete
-        if left == [2, 5]:
-            logger.info("delete me")
-
-        while index < left_size:
-            sub_index = 0
-            left_element: int = left[index]
-            left_count: int = left_counts[index]
-
-            while sub_index < right_size:
-                right_element: int = right[sub_index]
-
-                if right_element < left_element:
-                    merged_counts[index] += left_count + 1
-
-                sub_index += 1
-
-            index += 1
-
-        for count in right_counts:
-            merged_counts[index] = count
-            index += 1
-
-        merged_with_counts = (merged, merged_counts)
-
-        return merged_with_counts
-
-    sorted_numbers, counts = _merge_sort_with_count(numbers)
-
-    return counts
+    return count_smaller(numbers)
 
 
 def test_count_smaller_n_squared():
