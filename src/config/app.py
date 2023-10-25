@@ -29,4 +29,4 @@ def load_app_config():
 def test_load_app_config():
     test_config = load_app_config()
 
-    assert test_config["environment"] == "development"
+    assert test_config["ENVIRONMENT"] == "development"
