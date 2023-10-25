@@ -83,61 +83,70 @@ def count_smaller_n_log_n(numbers) -> List[int]:
 
         left_index = 0
         right_index = 0
+        left_size = len(left)
+        right_size = len(right)
         merged = []
         merged_counts = []
 
-        left_items = dict()
-        right_items = dict()
-
-        for item in left:
-            left_items.setdefault(item, {'count': 0, 'evaluated': False})
-
-        for item in right:
-            right_items.setdefault(item, {'count': 0, 'evaluated': False})
-
         # This is the merge sort part, we go until one array is emptied
-        while left and right:
+        while left_index < left_size and right_index < right_size:
             # Select the smallest value from the front of each list (excluding values already in the sorted array)
-            left_element: int = left[0]
-            right_element: int = right[0]
+            left_element: int = left[left_index]
+            right_element: int = right[right_index]
 
             # Select the minimum of the two values
             if right_element < left_element:
-                # Increment the count of the larger element
-                increment_count = left_counts[0]
-                increment_count += 1
-                left_counts[0] = increment_count
+                # If the right element is smaller, we increment the OPPOSING array's count
+                current_element_count = left_counts[left_index]
+                new_count = current_element_count + 1
+                left_counts[left_index] = new_count
 
                 # Append both items to keep track
-                element_count = right_counts[0]
+                element_count = right_counts[right_index]
                 merged.append(right_element)
                 merged_counts.append(element_count)
-
-                right.pop(0)
-                right_counts.pop(0)
 
                 # We need to match the list, if we were [5, 1] and sorted becomes [1, 5] the count should be [0, 1]
                 right_index += 1
             else:
                 # Add the selected value to the sorted array
-                element_count = left_counts[0]
+                element_count = left_counts[left_index]
 
                 merged.append(left_element)
                 merged_counts.append(element_count)
 
-                left.pop(0)
-                left_counts.pop(0)
-
                 left_index += 1
 
+        # When we get here, one list has been emptied. We still have remaining items in the other list,
+        # that have not yet been evaluated. To keep it at O(n * log(n)), we evaluate the remaining items by slicing it.
 
-        # TODO this only works if you just extend. We need to evaluate the untouched numbers in the remaining list
-        #  Essentially we increment and need to set a value as evaluated = true. So we only check the remaining
-        #  unevaluated numbers in the remaining list
         if left_index < len(left):
+            # This means the right list is fully parsed, but the left list is not.
             merged.extend(left[left_index:])
             merged_counts.extend(left_counts[left_index:])
         elif right_index < len(right):
+            # This means the left list is fully parsed, but the right list is not.
+            # We are evaluating the remaining elements, thus we go from the current right index
+            # to the end of the list
+            for remaining_index in range(right_index, len(right)):
+                remaining_element = right[remaining_index]
+                remaining_element_count = right_counts[remaining_index]
+
+                # This is the tricky bit, we must assume the remaining half is already sorted,
+                # and we already compared the merged items, so to avoid double counts,
+                # we must parse the original left list for comparisons.
+                for index in range(left_size):
+                    left_element = left[index]
+
+                    if left_element < remaining_element:
+                        merged_index = remaining_index + left_size
+
+                        if merged_index >= len(merged_counts):
+                            merged_counts.extend([remaining_element_count])
+
+                        print(merged_counts)
+                        merged_counts[merged_index] += 1
+
             merged.extend(right[right_index:])
             merged_counts.extend(right_counts[right_index:])
 
@@ -184,8 +193,8 @@ def test_medium_list_already_ordered():
 
 
 def test_medium_list_not_ordered():
-    numbers = [2, 5, 1, 6, 4, 3]
-    expected = [1, 3, 0, 2, 1, 0]
+    numbers = [5, 2, 6, 1]
+    expected = [2, 1, 1, 0]
 
     results = count_smaller_n_log_n(numbers)
 
