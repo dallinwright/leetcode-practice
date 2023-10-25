@@ -84,21 +84,17 @@ def count_smaller_n_log_n(numbers) -> List[int]:
         merged = []
         merged_counts = []
 
-        # This is the merge sort part, we go until one array is emptied
+        # This is the merge sort part, we go until one array is emptied.
         while left_index < left_size and right_index < right_size:
-            # Select the smallest value from the front of each list (excluding values already in the sorted array)
             left_element: int = left[left_index]
             right_element: int = right[right_index]
 
-            # Select the minimum of the two values
             if right_element < left_element:
-                # If the right element is smaller, we increment the OPPOSING array's count
-                current_element_count = left_counts[left_index]
-                new_count = current_element_count + 1
-                left_counts[left_index] = new_count
+                # Note to self, we need to count and preserve the count order, according to the original list,
+                # not the sorted list!
+                element_count = left_counts[left_index] + 1
 
                 # Append both items to keep track
-                element_count = right_counts[right_index]
                 merged.append(right_element)
                 merged_counts.append(element_count)
 
@@ -106,7 +102,14 @@ def count_smaller_n_log_n(numbers) -> List[int]:
                 right_index += 1
             else:
                 # Add the selected value to the sorted array
-                element_count = left_counts[left_index]
+                element_count = left_counts[right_index]
+                # the -1 is because arrays are 0 indexed
+                remaining_elements = left_size - 1
+
+                for index in range(0, remaining_elements):
+                    picked_element = right_counts[index]
+                    if picked_element < left_element:
+                        element_count += 1
 
                 merged.append(left_element)
                 merged_counts.append(element_count)
