@@ -92,7 +92,7 @@ def count_smaller_n_log_n(numbers) -> List[int]:
             if right_element < left_element:
                 # Note to self, we need to count and preserve the count order, according to the original list,
                 # not the sorted list!
-                element_count = left_counts[left_index] + 1
+                element_count: int = left_counts[left_index] + 1
 
                 # Append both items to keep track
                 merged.append(right_element)
@@ -101,18 +101,10 @@ def count_smaller_n_log_n(numbers) -> List[int]:
                 # We need to match the list, if we were [5, 1] and sorted becomes [1, 5] the count should be [0, 1]
                 right_index += 1
             else:
-                # Add the selected value to the sorted array
-                element_count = left_counts[right_index]
-                # the -1 is because arrays are 0 indexed
-                remaining_elements = left_size - 1
-
-                for index in range(0, remaining_elements):
-                    picked_element = right_counts[index]
-                    if picked_element < left_element:
-                        element_count += 1
+                left_element_count = left_counts[left_index]
 
                 merged.append(left_element)
-                merged_counts.append(element_count)
+                merged_counts.append(left_element_count)
 
                 left_index += 1
 
@@ -128,31 +120,6 @@ def count_smaller_n_log_n(numbers) -> List[int]:
             # This means the right list is fully parsed, but the left list is not.
             merged.extend(right[right_index:])
             merged_counts.extend(right_counts[right_index:])
-
-            # This means the left list is fully parsed, but the right list is not.
-            # We are evaluating the remaining elements, thus we go from the current right index
-            # to the end of the list
-            # for remaining_index in range(right_index, right_size):
-            #     remaining_element = right[remaining_index]
-            #     remaining_element_count = right_counts[remaining_index]
-            #
-            #     # This is the tricky bit, we must assume the remaining half is already sorted,
-            #     # and we already compared the merged items, so to avoid double counts,
-            #     # we must parse the original left list for comparisons.
-            #     for index in range(left_size):
-            #         left_element = left[index]
-            #
-            #         if left_element < remaining_element:
-            #             merged_index = remaining_index + left_size
-            #             new_count = remaining_element_count + 1
-            #
-            #             if merged_index >= len(merged_counts):
-            #                 merged_counts.extend([new_count])
-            #             else:
-            #                 merged_counts[merged_index] = new_count
-            #
-            #             logger.info(f"Adding {remaining_element_count} to {merged_index}")
-            #             merged_counts[merged_index] += 1
 
         merged_with_counts = (merged, merged_counts)
 
@@ -182,8 +149,8 @@ def test_small_list_already_ordered():
 
 
 def test_small_list_not_ordered():
-    numbers = [2, 1]
-    expected = [1, 0]
+    numbers = [5, 2, 6]
+    expected = [1, 0, 0]
 
     results = count_smaller_n_log_n(numbers)
 
@@ -202,6 +169,15 @@ def test_medium_list_already_ordered():
 def test_medium_list_not_ordered():
     numbers = [5, 2, 6, 1]
     expected = [2, 1, 1, 0]
+
+    results = count_smaller_n_log_n(numbers)
+
+    assert results == expected
+
+
+def test_large_list_not_ordered():
+    numbers = [5, 2, 6, 1, 3, 4]
+    expected = [4, 1, 3, 0, 0, 0]
 
     results = count_smaller_n_log_n(numbers)
 
