@@ -1,4 +1,4 @@
-from sorted_array_ologn.main import find_median_sorted_lists
+from src.sorted_array_ologn.main import find_median_sorted_lists
 
 
 def test_find_median_sorted_arrays_even():
