@@ -94,12 +94,15 @@ def count_smaller_n_log_n(numbers) -> List[int]:
 
             # Select the minimum of the two values
             if right_element < left_element:
-                # Since the right element is smaller, we append that element next to the list
-                merged.append(right_element)
+                # Increment the count of the larger element
+                increment_count = left_counts[0]
+                increment_count += 1
+                left_counts[0] = increment_count
 
-                element_count = left_counts[0]
-                new_count = element_count + 1
-                left_counts[0] = new_count
+                # Append both items to keep track
+                element_count = right_counts[0]
+                merged.append(right_element)
+                merged_counts.append(element_count)
 
                 right.pop(0)
                 right_counts.pop(0)
@@ -108,9 +111,9 @@ def count_smaller_n_log_n(numbers) -> List[int]:
                 right_index += 1
             else:
                 # Add the selected value to the sorted array
-                merged.append(left_element)
+                element_count = left_counts[0]
 
-                element_count = right_counts[0]
+                merged.append(left_element)
                 merged_counts.append(element_count)
 
                 left.pop(0)
