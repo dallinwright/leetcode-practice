@@ -15,6 +15,8 @@ To the right of 1, there are zero smaller elements.
 import math
 from typing import List
 
+from src.config.app_logger import logger
+
 
 def count_smaller_n_squared(numbers):
     """
@@ -118,31 +120,36 @@ def count_smaller_n_log_n(numbers) -> List[int]:
             # This means the right list is fully parsed, but the left list is not.
             merged.extend(left[left_index:])
             merged_counts.extend(left_counts[left_index:])
-        elif right_index < len(right):
+
+        elif right_index < right_size:
+            # This means the right list is fully parsed, but the left list is not.
+            merged.extend(right[right_index:])
+            merged_counts.extend(right_counts[right_index:])
+
             # This means the left list is fully parsed, but the right list is not.
             # We are evaluating the remaining elements, thus we go from the current right index
             # to the end of the list
-            for remaining_index in range(right_index, len(right)):
-                remaining_element = right[remaining_index]
-                remaining_element_count = right_counts[remaining_index]
-
-                # This is the tricky bit, we must assume the remaining half is already sorted,
-                # and we already compared the merged items, so to avoid double counts,
-                # we must parse the original left list for comparisons.
-                for index in range(left_size):
-                    left_element = left[index]
-
-                    if left_element < remaining_element:
-                        merged_index = remaining_index + left_size
-
-                        if merged_index >= len(merged_counts):
-                            merged_counts.extend([remaining_element_count])
-
-                        print(merged_counts)
-                        merged_counts[merged_index] += 1
-
-            merged.extend(right[right_index:])
-            merged_counts.extend(right_counts[right_index:])
+            # for remaining_index in range(right_index, right_size):
+            #     remaining_element = right[remaining_index]
+            #     remaining_element_count = right_counts[remaining_index]
+            #
+            #     # This is the tricky bit, we must assume the remaining half is already sorted,
+            #     # and we already compared the merged items, so to avoid double counts,
+            #     # we must parse the original left list for comparisons.
+            #     for index in range(left_size):
+            #         left_element = left[index]
+            #
+            #         if left_element < remaining_element:
+            #             merged_index = remaining_index + left_size
+            #             new_count = remaining_element_count + 1
+            #
+            #             if merged_index >= len(merged_counts):
+            #                 merged_counts.extend([new_count])
+            #             else:
+            #                 merged_counts[merged_index] = new_count
+            #
+            #             logger.info(f"Adding {remaining_element_count} to {merged_index}")
+            #             merged_counts[merged_index] += 1
 
         merged_with_counts = (merged, merged_counts)
 
