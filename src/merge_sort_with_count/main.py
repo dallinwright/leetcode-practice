@@ -82,44 +82,57 @@ def count_smaller_n_log_n(numbers) -> List[int]:
         left_size = len(left)
         right_size = len(right)
         merged = []
-        merged_counts = []
+        merged_counts = [0] * (left_size + right_size)
 
-        # This is the merge sort part, we go until one array is emptied.
+        # Very strange, very strange indeed.
+        # We must compare each element in the left to each element in the right, this breaks from the regular merge-sort
+        # algo.
         while left_index < left_size and right_index < right_size:
             left_element: int = left[left_index]
             right_element: int = right[right_index]
 
             if right_element < left_element:
-                # Note to self, we need to count and preserve the count order, according to the original list,
-                # not the sorted list!
-                element_count: int = left_counts[left_index] + 1
-
-                # Append both items to keep track
                 merged.append(right_element)
-                merged_counts.append(element_count)
 
-                # We need to match the list, if we were [5, 1] and sorted becomes [1, 5] the count should be [0, 1]
                 right_index += 1
             else:
-                left_element_count = left_counts[left_index]
-
                 merged.append(left_element)
-                merged_counts.append(left_element_count)
 
                 left_index += 1
 
-        # When we get here, one list has been emptied. We still have remaining items in the other list,
-        # that have not yet been evaluated. To keep it at O(n * log(n)), we evaluate the remaining items by slicing it.
-
-        if left_index < len(left):
-            # This means the right list is fully parsed, but the left list is not.
-            merged.extend(left[left_index:])
-            merged_counts.extend(left_counts[left_index:])
-
+        if left_index < left_size:
+            merged = merged + left[left_index:]
         elif right_index < right_size:
-            # This means the right list is fully parsed, but the left list is not.
-            merged.extend(right[right_index:])
-            merged_counts.extend(right_counts[right_index:])
+            merged = merged + right[right_index:]
+
+        # We had to inspect and compare both arrays which are sorted and essentially zipper them.
+        # That means we inspected and compared every element already.
+        # We MUST compare every left element to every right
+        # until we hit the end OR we hit a right element > than a left element.
+        index = 0
+
+        # TODO shortcircuit delete
+        if left == [2, 5]:
+            logger.info("delete me")
+
+        while index < left_size:
+            sub_index = 0
+            left_element: int = left[index]
+            left_count: int = left_counts[index]
+
+            while sub_index < right_size:
+                right_element: int = right[sub_index]
+
+                if right_element < left_element:
+                    merged_counts[index] += left_count + 1
+
+                sub_index += 1
+
+            index += 1
+
+        for count in right_counts:
+            merged_counts[index] = count
+            index += 1
 
         merged_with_counts = (merged, merged_counts)
 
@@ -157,15 +170,6 @@ def test_small_list_not_ordered():
     assert results == expected
 
 
-def test_medium_list_already_ordered():
-    numbers = [1, 2, 3, 4, 5]
-    expected = [0, 0, 0, 0, 0]
-
-    results = count_smaller_n_log_n(numbers)
-
-    assert results == expected
-
-
 def test_medium_list_not_ordered():
     numbers = [5, 2, 6, 1]
     expected = [2, 1, 1, 0]
@@ -178,6 +182,15 @@ def test_medium_list_not_ordered():
 def test_large_list_not_ordered():
     numbers = [5, 2, 6, 1, 3, 4]
     expected = [4, 1, 3, 0, 0, 0]
+
+    results = count_smaller_n_log_n(numbers)
+
+    assert results == expected
+
+
+def test_medium_list_already_ordered():
+    numbers = [1, 2, 3, 4, 5]
+    expected = [0, 0, 0, 0, 0]
 
     results = count_smaller_n_log_n(numbers)
 
