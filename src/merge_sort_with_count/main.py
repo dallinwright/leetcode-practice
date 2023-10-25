@@ -47,7 +47,7 @@ def count_smaller_n_squared(numbers):
     return results
 
 
-def count_smaller_n_log_n(numbers) -> List[int]:
+def count_smaller_n_log_n(numbers: List[int]) -> List[int]:
     """
     O(n * log(n)) solution, better than O(n^2). More complex and is recursive, so hard to understand/debug
     This is the container function that calls the internal recursive merge_sort_with_count function. This is the
@@ -58,29 +58,55 @@ def count_smaller_n_log_n(numbers) -> List[int]:
     :param numbers: Array of numbers
     :return: Array of counts, where a +1 is the number of smaller elements to the right of nums[i]
     """
+    if not numbers:
+        return []
 
-    def count_smaller(nums):
-        if not nums:
-            return []
+    def sort(data):
+        split_point = len(data) // 2
 
-        def sort(enum):
-            half = len(enum) // 2
+        if split_point:
+            left_half = sort(data[:split_point])
+            right_half = sort(data[split_point:])
 
-            if half:
-                left, right = sort(enum[:half]), sort(enum[half:])
-                for i in range(len(enum) - 1, -1, -1):
-                    if not right or left and left[-1][1] > right[-1][1]:
-                        smaller[left[-1][0]] += len(right)
-                        enum[i] = left.pop()
+            last_index = len(data) - 1
+            continue_until_value = -1
+            iterate_step = -1
+
+            # This is the key part. We are going to iterate backwards through the list, and we are going to
+            # iterate in reverse order, and go until we hit the element at index 0.
+            for i in range(last_index, continue_until_value, iterate_step):
+                # If the right half is empty
+                if not right_half:
+                    smaller_counts[left_half[-1][0]] += len(right_half)
+                    data[i] = left_half.pop()
+                # If the left half still has items and the last element of the left half is
+                # greater than the last element of the right half
+                elif left_half:
+                    left_half_last_element = left_half[-1][1]
+                    right_half_last_element = right_half[-1][1]
+
+                    if left_half_last_element > right_half_last_element:
+                        smaller_counts[left_half[-1][0]] += len(right_half)
+                        data[i] = left_half.pop()
                     else:
-                        enum[i] = right.pop()
-            return enum
+                        data[i] = right_half.pop()
+                else:
+                    data[i] = right_half.pop()
 
-        smaller = [0] * len(nums)
-        sort(list(enumerate(nums)))
-        return smaller
+        return data
 
-    return count_smaller(numbers)
+    smaller_counts = [0] * len(numbers)
+
+    # Used to create a list of tuples where the first element of the tuple is the index
+    # and the second element is the value from the original list
+    index_with_number = enumerate(numbers)
+
+    # We then take the enumerated object and convert it to a list of tuples, basically a python specific thing
+    aggregate = list(index_with_number)
+
+    sort(aggregate)
+
+    return smaller_counts
 
 
 def test_count_smaller_n_squared():
