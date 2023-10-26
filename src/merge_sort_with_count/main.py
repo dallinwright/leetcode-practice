@@ -70,25 +70,32 @@ def count_smaller_n_log_n(numbers: List[int]) -> List[int]:
 
             index = len(data) - 1
             continue_until_value = -1
-            iterate_step = -1
 
             # This is the key part. We are going to iterate backwards through the list, and we are going to
             # iterate in reverse order, and go until we hit the element at index 0.
             while index > continue_until_value:
                 # If the right half is empty
                 if not right_half:
-                    smaller_counts[left_half[-1][0]] += len(right_half)
+                    left_last_element = left_half[-1]
+                    left_last_element_index = left_last_element[0]
+
+                    smaller_counts[left_last_element_index] += len(right_half)
                     data[index] = left_half.pop()
+
                 # If the left half still has items and the last element of the left half is
                 # greater than the last element of the right half
                 elif left_half:
-                    # The first -1 takes the last element in the array, for example (2,6) and the [1] takes the 6
+                    # The first -1 takes the last element in the array, for example (2, 6) and the [1] takes the 6
                     # the 2 in this case would be the index in the original list, and the 6 is the value
-                    left_half_last_element = left_half[-1][1]
-                    right_half_last_element = right_half[-1][1]
+                    left_last_element = left_half[-1]
+                    left_last_element_value = left_last_element[1]
 
-                    if left_half_last_element > right_half_last_element:
-                        smaller_counts[left_half[-1][0]] += len(right_half)
+                    right_last_element = right_half[-1]
+                    right_last_element_value = right_last_element[1]
+
+                    if left_last_element_value > right_last_element_value:
+                        left_last_element_index = left_last_element[0]
+                        smaller_counts[left_last_element_index] += len(right_half)
                         data[index] = left_half.pop()
                     else:
                         data[index] = right_half.pop()
@@ -99,15 +106,18 @@ def count_smaller_n_log_n(numbers: List[int]) -> List[int]:
 
         return data
 
+    # We from the start create the list that will be modified in place; this is the list that will be returned
+    # at the end of the function
     smaller_counts = [0] * len(numbers)
 
     # Used to create a list of tuples where the first element of the tuple is the index
     # and the second element is the value from the original list
     index_with_number = enumerate(numbers)
 
-    # We then take the enumerated object and convert it to a list of tuples, basically a python specific thing
+    # We then take the enumerated object and convert it to a list of tuples, basically a python-specific thing
     aggregate = list(index_with_number)
 
+    # The recursive function that does the actual counting and sorting, it will again modify in place the smaller_counts
     sort(aggregate)
 
     return smaller_counts
