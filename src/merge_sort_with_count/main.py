@@ -68,30 +68,34 @@ def count_smaller_n_log_n(numbers: List[int]) -> List[int]:
             left_half = sort(data[:split_point])
             right_half = sort(data[split_point:])
 
-            last_index = len(data) - 1
+            index = len(data) - 1
             continue_until_value = -1
             iterate_step = -1
 
             # This is the key part. We are going to iterate backwards through the list, and we are going to
             # iterate in reverse order, and go until we hit the element at index 0.
-            for i in range(last_index, continue_until_value, iterate_step):
+            while index > continue_until_value:
                 # If the right half is empty
                 if not right_half:
                     smaller_counts[left_half[-1][0]] += len(right_half)
-                    data[i] = left_half.pop()
+                    data[index] = left_half.pop()
                 # If the left half still has items and the last element of the left half is
                 # greater than the last element of the right half
                 elif left_half:
+                    # The first -1 takes the last element in the array, for example (2,6) and the [1] takes the 6
+                    # the 2 in this case would be the index in the original list, and the 6 is the value
                     left_half_last_element = left_half[-1][1]
                     right_half_last_element = right_half[-1][1]
 
                     if left_half_last_element > right_half_last_element:
                         smaller_counts[left_half[-1][0]] += len(right_half)
-                        data[i] = left_half.pop()
+                        data[index] = left_half.pop()
                     else:
-                        data[i] = right_half.pop()
+                        data[index] = right_half.pop()
                 else:
-                    data[i] = right_half.pop()
+                    data[index] = right_half.pop()
+
+                index -= 1
 
         return data
 
