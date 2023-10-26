@@ -62,24 +62,20 @@ def count_smaller_n_log_n(numbers: List[int]) -> List[int]:
         return []
 
     def sort(data):
-        split_point = len(data) // 2
+        split_point: int = len(data) // 2
 
         if split_point:
-            left_half = sort(data[:split_point])
-            right_half = sort(data[split_point:])
+            left_half: List[(int, int)] = sort(data[:split_point])
+            right_half: List[(int, int)] = sort(data[split_point:])
 
-            index = len(data) - 1
-            continue_until_value = -1
+            index: int = len(data) - 1
+            continue_until_value: int = -1
 
             # This is the key part. We are going to iterate backwards through the list, and we are going to
             # iterate in reverse order, and go until we hit the element at index 0.
             while index > continue_until_value:
                 # If the right half is empty
                 if not right_half:
-                    left_last_element = left_half[-1]
-                    left_last_element_index = left_last_element[0]
-
-                    smaller_counts[left_last_element_index] += len(right_half)
                     data[index] = left_half.pop()
 
                 # If the left half still has items and the last element of the left half is
@@ -87,11 +83,11 @@ def count_smaller_n_log_n(numbers: List[int]) -> List[int]:
                 elif left_half:
                     # The first -1 takes the last element in the array, for example (2, 6) and the [1] takes the 6
                     # the 2 in this case would be the index in the original list, and the 6 is the value
-                    left_last_element = left_half[-1]
-                    left_last_element_value = left_last_element[1]
+                    left_last_element: (int, int) = left_half[-1]
+                    left_last_element_value: int = left_last_element[1]
 
-                    right_last_element = right_half[-1]
-                    right_last_element_value = right_last_element[1]
+                    right_last_element: (int, int) = right_half[-1]
+                    right_last_element_value: int = right_last_element[1]
 
                     if left_last_element_value > right_last_element_value:
                         left_last_element_index = left_last_element[0]
